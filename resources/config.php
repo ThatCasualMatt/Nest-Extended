@@ -15,3 +15,4 @@ $dbname='DATABASE';
 
 //Automatically set humidity target based on outside temperature? 1 = yes, 0 = no
 $set_humidity=1;
+$maxhumidity=45;  //What is the maximum target humidity you would like Nest to reach?

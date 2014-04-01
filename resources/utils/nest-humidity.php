@@ -1,7 +1,5 @@
 <?php
 //Set humidity target based on outside temperature
-// Max automatic target humidity levels
-$maxhumidity=45;
 
 // Don't change this unless you're very very sure, or you may cause damage to your home!
 $safelimit=60;
