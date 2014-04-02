@@ -17,7 +17,6 @@ $locations = $nest->getUserLocations();
 //Used to get current weather
 $weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/conditions/q/'.$locations[0]->postal_code.'.json');
 $weather=json_decode($weather_json);
-//$outside_humidity = preg_replace('/[^0-9]/','',$weather->current_observation->relative_humidity);
 
 //Used to return current inside temperature, current inside humidity, current mode, target temperature, time to target temperature, current heat state, current ac state
 $infos = $nest->getDeviceInfo();
