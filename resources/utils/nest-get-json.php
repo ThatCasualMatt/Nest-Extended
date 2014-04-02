@@ -18,8 +18,12 @@ $current_temp = array(
 	'color' => '#B40404',
 );
 
-$target_temp = array(
+$low_target_temp = array(
 	'label' => 'Target Temp.',
+	'color' => '#848484',
+);
+
+$high_target_temp = array(
 	'color' => '#848484',
 );
 
@@ -60,13 +64,14 @@ $leaf_status = array(
 
 
 //Get data for temperature.
-$query = mysql_query('SELECT log_datetime, outside_temp, current_temp, target_temp, heat_on, ac_on, fan_on, away_status, leaf_status FROM nest');
+$query = mysql_query('SELECT log_datetime, outside_temp, current_temp, low_target_temp, high_target_temp, heat_on, ac_on, fan_on, away_status, leaf_status FROM nest');
 
 while($r = mysql_fetch_array($query)) {
 	$time = strtotime($r['log_datetime'])*1000;
 	$outside_temp['data'][] = array($time, $r['outside_temp']);
 	$current_temp['data'][] = array($time, $r['current_temp']);
-	$target_temp['data'][] = array($time, $r['target_temp']);
+	if ($r['low_target_temp'] !== "0"){$low_target_temp['data'][] = array($time, $r['low_target_temp']);} else {$low_target_temp['data'][] = null;};
+	if ($r['high_target_temp'] !== "0.00"){$high_target_temp['data'][] = array($time, $r['high_target_temp']);} else {$high_target_temp['data'][] = null;};
 	if ($r['heat_on'] === "1") {$heat_on['data'][] = array($time, $r['heat_on']);} else {$heat_on['data'][] = null;};
 	if ($r['ac_on'] === "1") {$ac_on['data'][] = array($time, $r['ac_on']);} else {$ac_on['data'][] = null;};
 	if ($r['fan_on'] === "1") {$fan_on['data'][] = array($time, $r['fan_on']);} else {$fan_on['data'][] = null;};
@@ -75,7 +80,7 @@ while($r = mysql_fetch_array($query)) {
 }
 
 //Build the JSON
-$data = array($outside_temp,$current_temp,$target_temp,$heat_on,$ac_on,$fan_on,$away_status,$leaf_status);
+$data = array($outside_temp,$current_temp,$low_target_temp,$high_target_temp,$heat_on,$ac_on,$fan_on,$away_status,$leaf_status);
 print json_encode($data);
 
 } elseif ($_GET['datatype'] === 'humid'){
