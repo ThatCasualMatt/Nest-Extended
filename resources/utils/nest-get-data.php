@@ -11,12 +11,15 @@ $runTime = $date = date('Y-m-d H:i:s');
 //Create a new Nest Object
 $nest = new Nest();
 
-//Used to return current outside temperature and away status
-//Uncomment out the three lines below to view what getUserLocations returns [JSON Format]
+//Used to return current location and away status
 $locations = $nest->getUserLocations();
 
+//Used to get current weather
+$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/conditions/q/'.$locations[0]->postal_code.'.json');
+$weather=json_decode($weather_json);
+//$outside_humidity = preg_replace('/[^0-9]/','',$weather->current_observation->relative_humidity);
+
 //Used to return current inside temperature, current inside humidity, current mode, target temperature, time to target temperature, current heat state, current ac state
-//Uncomment out the three lines below to view what getDeviceInfo returns [JSON Format]
 $infos = $nest->getDeviceInfo();
 
 //If the target temperature is an array, we need to deal with that.
@@ -46,7 +49,7 @@ $con=mysql_connect($hostname,$username, $password) OR DIE ('Unable to connect to
 mysql_select_db($dbname);
 
 //Insert Current Values into Nest Database Table
-$query = 'INSERT INTO nest (log_datetime, location, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, temp_mode, low_target_temp, high_target_temp, time_to_target, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online) VALUES ("'.$runTime.'", "'.$locations[0]->postal_code.'", "'.$locations[0]->outside_temperature.'", "'.$locations[0]->outside_humidity.'", "'.$locations[0]->away.'", "'.$infos->current_state->leaf.'", "'.$infos->current_state->temperature.'", "'.$infos->current_state->humidity.'", "'.$infos->current_state->mode.'", "'.$low_target_temp.'", "'.$high_target_temp.'", "'.$infos->target->time_to_target.'","'.$infos->target->humidity.'","'.$infos->current_state->heat.'","'.$infos->current_state->humidifier.'","'.$infos->current_state->ac.'","'.$infos->current_state->fan.'","'.$infos->current_state->battery_level.'","'.$infos->network->online.'")';
+$query = 'INSERT INTO nest (log_datetime, location, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, temp_mode, low_target_temp, high_target_temp, time_to_target, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online) VALUES ("'.$runTime.'", "'.$locations[0]->postal_code.'", "'.$weather->current_observation->temp_f.'", "'.$weather->current_observation->relative_humidity.'", "'.$locations[0]->away.'", "'.$infos->current_state->leaf.'", "'.$infos->current_state->temperature.'", "'.$infos->current_state->humidity.'", "'.$infos->current_state->mode.'", "'.$low_target_temp.'", "'.$high_target_temp.'", "'.$infos->target->time_to_target.'","'.$infos->target->humidity.'","'.$infos->current_state->heat.'","'.$infos->current_state->humidifier.'","'.$infos->current_state->ac.'","'.$infos->current_state->fan.'","'.$infos->current_state->battery_level.'","'.$infos->network->online.'")';
 $result = mysql_query($query);	
 
 //Close mySQL DB connection
