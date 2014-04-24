@@ -5,6 +5,7 @@ define('PASSWORD', 'PASSWORD');
 
 // The timezone you're in.
 // See http://php.net/manual/en/timezones.php for the possible values.
+$us_timezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US');
 date_default_timezone_set('America/New_York');
 
 //Database settings
