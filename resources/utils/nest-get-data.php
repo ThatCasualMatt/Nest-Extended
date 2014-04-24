@@ -26,6 +26,14 @@ if ($_GET['datatype'] === 'current'){
 
 	//Used to return current inside temperature, current inside humidity, current mode, target temperature, time to target temperature, current heat state, current ac state
 	$infos = $nest->getDeviceInfo();
+	
+	//Determine if we need celsius temperature
+	$us_timezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, 'US');
+	if (in_array(date_default_timezone_get(), $us_timezones) {
+		$current_temp = $weather->current_observation->temp_f; 
+	} else {
+		$current_temp = $weather->current_observation->temp_c; 
+	}
 
 	//If the target temperature is an array, we need to deal with that.
 	if (strpos($infos->current_state->mode,'heat') !== false) {
@@ -48,9 +56,9 @@ if ($_GET['datatype'] === 'current'){
 		$high_target_temp = $infos->target->temperature[0];
 		$low_target_temp = $infos->target->temperature[1];
 	}
-
+	
 	//Insert Current Values into Nest Database Table
-	$query = 'INSERT INTO nest (log_datetime, location, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, temp_mode, low_target_temp, high_target_temp, time_to_target, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online) VALUES ("'.$runTime.'", "'.$locations[0]->postal_code.'", "'.$weather->current_observation->temp_f.'", "'.$weather->current_observation->relative_humidity.'", "'.$locations[0]->away.'", "'.$infos->current_state->leaf.'", "'.$infos->current_state->temperature.'", "'.$infos->current_state->humidity.'", "'.$infos->current_state->mode.'", "'.$low_target_temp.'", "'.$high_target_temp.'", "'.$infos->target->time_to_target.'","'.$infos->target->humidity.'","'.$infos->current_state->heat.'","'.$infos->current_state->humidifier.'","'.$infos->current_state->ac.'","'.$infos->current_state->fan.'","'.$infos->current_state->battery_level.'","'.$infos->network->online.'")';
+	$query = 'INSERT INTO nest (log_datetime, location, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, temp_mode, low_target_temp, high_target_temp, time_to_target, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online) VALUES ("'.$runTime.'", "'.$locations[0]->postal_code.'", "'.$current_temp.'", "'.$weather->current_observation->relative_humidity.'", "'.$locations[0]->away.'", "'.$infos->current_state->leaf.'", "'.$infos->current_state->temperature.'", "'.$infos->current_state->humidity.'", "'.$infos->current_state->mode.'", "'.$low_target_temp.'", "'.$high_target_temp.'", "'.$infos->target->time_to_target.'","'.$infos->target->humidity.'","'.$infos->current_state->heat.'","'.$infos->current_state->humidifier.'","'.$infos->current_state->ac.'","'.$infos->current_state->fan.'","'.$infos->current_state->battery_level.'","'.$infos->network->online.'")';
 	$result = mysql_query($query);	
 
 	//Set the humidity level if enabled.
