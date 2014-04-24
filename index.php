@@ -45,7 +45,7 @@
 				var tempoptions = {
 					xaxes: [{ 
 						mode: "time", 
-						timezone: "America/Detroit",
+						timezone: "<?php echo date_default_timezone_get()?>",
 						timeformat: "%m/%d/%Y %H:%M",
 						min: yesterdaytime,
 						max: currenttime
@@ -82,7 +82,7 @@
 					},
 					xaxes: [{ 
 						mode: "time", 
-						timezone: "America/Detroit",
+						timezone: "<?php echo date_default_timezone_get()?>",
 						timeformat: "%m/%d/%Y %H:%M",
 					}],
 					yaxes: [{
@@ -100,7 +100,7 @@
 				var humidoptions = {
 					xaxes: [{ 
 						mode: "time", 
-						timezone: "America/Detroit",
+						timezone: "<?php echo date_default_timezone_get()?>",
 						timeformat: "%m/%d/%Y %H:%M",
 						min: yesterdaytime,
 						max: currenttime
@@ -124,7 +124,7 @@
 				var miscoptions = {
 					xaxes: [{ 
 						mode: "time", 
-						timezone: "America/Detroit",
+						timezone: "<?php echo date_default_timezone_get()?>",
 						timeformat: "%m/%d/%Y %H:%M",
 						min: yesterdaytime,
 						max: currenttime
