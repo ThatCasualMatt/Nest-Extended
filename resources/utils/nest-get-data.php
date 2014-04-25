@@ -16,7 +16,7 @@ $nest = new Nest();
 $locations = $nest->getUserLocations();
 
 //Postal Code formatting
-if (in_array(date_default_timezone_get(), $us_timezones) {
+if (in_array(date_default_timezone_get(), $us_timezones)) {
 	$postal_code = $locations[0]->postal_code; 
 } else {
 	$postal_code = substr($locations[0]->postal_code, 0, -3) . " " . substr($locations[0]->postal_code, -3);
@@ -35,7 +35,7 @@ if ($_GET['datatype'] === 'current'){
 	$infos = $nest->getDeviceInfo();
 	
 	//Determine if we need Celsius temperature
-	if (in_array(date_default_timezone_get(), $us_timezones) {
+	if (in_array(date_default_timezone_get(), $us_timezones)) {
 		$current_temp = $weather->current_observation->temp_f; 
 	} else {
 		$current_temp = $weather->current_observation->temp_c; 
