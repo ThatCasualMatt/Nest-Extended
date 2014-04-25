@@ -78,7 +78,7 @@ elseif ($_GET['datatype'] === 'daily') {
 	$energy = $nest->getEnergyLatest();
 
 	//Used to get yesterday's weather
-	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/yesterday/q/'.$postal_code.'.json');
+	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/yesterday/q/'.urlencode($postal_code).'.json');
 	$weather=json_decode($weather_json);
 	$yesterday_date = date("Y-m-d", time() - 60 * 60 * 24);
 
