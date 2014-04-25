@@ -16,7 +16,7 @@ $nest = new Nest();
 $locations = $nest->getUserLocations();
 
 //Postal Code formatting
-if (in_array(date_default_timezone_get(), $us_timezones) {
+if (in_array(date_default_timezone_get(), $us_timezones)) {
 	$postal_code = $locations[0]->postal_code; 
 } else {
 	$postal_code = substr($locations[0]->postal_code, 0, -3) . " " . substr($locations[0]->postal_code, -3);
@@ -28,14 +28,14 @@ if ($_GET['datatype'] === 'current'){
 	$runTime = $date = date('Y-m-d H:i:s');
 
 	//Used to get current outdoor weather
-	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/conditions/q/'.$postal_code.'.json');
+	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/conditions/q/'.rawurlencode($postal_code).'.json');
 	$weather=json_decode($weather_json);
 
 	//Used to return current inside temperature, current inside humidity, current mode, target temperature, time to target temperature, current heat state, current ac state
 	$infos = $nest->getDeviceInfo();
 	
 	//Determine if we need Celsius temperature
-	if (in_array(date_default_timezone_get(), $us_timezones) {
+	if (in_array(date_default_timezone_get(), $us_timezones)) {
 		$current_temp = $weather->current_observation->temp_f; 
 	} else {
 		$current_temp = $weather->current_observation->temp_c; 
@@ -78,7 +78,7 @@ elseif ($_GET['datatype'] === 'daily') {
 	$energy = $nest->getEnergyLatest();
 
 	//Used to get yesterday's weather
-	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/yesterday/q/'.$postal_code.'.json');
+	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/yesterday/q/'.rawurlencode($postal_code).'.json');
 	$weather=json_decode($weather_json);
 	$yesterday_date = date("Y-m-d", time() - 60 * 60 * 24);
 
