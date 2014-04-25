@@ -28,7 +28,7 @@ if ($_GET['datatype'] === 'current'){
 	$runTime = $date = date('Y-m-d H:i:s');
 
 	//Used to get current outdoor weather
-	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/conditions/q/'.$postal_code.'.json');
+	$weather_json = file_get_contents('http://api.wunderground.com/api/'.$wu_api_key.'/conditions/q/'.urlencode($postal_code).'.json');
 	$weather=json_decode($weather_json);
 
 	//Used to return current inside temperature, current inside humidity, current mode, target temperature, time to target temperature, current heat state, current ac state
