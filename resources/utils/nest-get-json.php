@@ -70,8 +70,8 @@ while($r = mysql_fetch_array($query)) {
 	$time = strtotime($r['log_datetime'])*1000;
 	$outside_temp['data'][] = array($time, $r['outside_temp']);
 	$current_temp['data'][] = array($time, $r['current_temp']);
-	if ($r['low_target_temp'] !== "0"){$low_target_temp['data'][] = array($time, $r['low_target_temp']);} else {$low_target_temp['data'][] = null;};
-	if ($r['high_target_temp'] !== "0.00"){$high_target_temp['data'][] = array($time, $r['high_target_temp']);} else {$high_target_temp['data'][] = null;};
+	if ($r['low_target_temp'] !== "0.0"){$low_target_temp['data'][] = array($time, $r['low_target_temp']);} else {$low_target_temp['data'][] = null;};
+	if ($r['high_target_temp'] !== "0.0"){$high_target_temp['data'][] = array($time, $r['high_target_temp']);} else {$high_target_temp['data'][] = null;};
 	if ($r['heat_on'] === "1") {$heat_on['data'][] = array($time, $r['heat_on']);} else {$heat_on['data'][] = null;};
 	if ($r['ac_on'] === "1") {$ac_on['data'][] = array($time, $r['ac_on']);} else {$ac_on['data'][] = null;};
 	if ($r['fan_on'] === "1") {$fan_on['data'][] = array($time, $r['fan_on']);} else {$fan_on['data'][] = null;};

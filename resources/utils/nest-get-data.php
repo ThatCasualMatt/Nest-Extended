@@ -50,7 +50,7 @@ if ($_GET['datatype'] === 'current'){
 			$low_target_temp = $infos->target->temperature;
 			$high_target_temp = null;
 		}
-	} elseif(strpos($infos->current_state->mode,'ac') !== false) {
+	} elseif(strpos($infos->current_state->mode,'cool') !== false) {
 		if (is_array($infos->target->temperature)) {
 			$low_targettemp = null;
 			$high_targettemp = $infos->target->temperature[1];
