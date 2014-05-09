@@ -52,15 +52,15 @@ if ($_GET['datatype'] === 'current'){
 		}
 	} elseif(strpos($infos->current_state->mode,'cool') !== false) {
 		if (is_array($infos->target->temperature)) {
-			$low_targettemp = null;
-			$high_targettemp = $infos->target->temperature[1];
+			$low_target_temp = null;
+			$high_target_temp = $infos->target->temperature[1];
 		} else {
 			$low_target_temp = null;
 			$high_target_temp = $infos->target->temperature;
 		}
 	} elseif(strpos($infos->current_state->mode,'range') !== false) {
-		$high_target_temp = $infos->target->temperature[0];
-		$low_target_temp = $infos->target->temperature[1];
+		$low_target_temp = $infos->target->temperature[0];
+		$high_target_temp = $infos->target->temperature[1];
 	}
 	
 	//Insert Current Values into Nest Database Table
