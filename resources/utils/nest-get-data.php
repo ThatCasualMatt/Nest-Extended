@@ -5,6 +5,13 @@ require_once('../libs/nest/nest.class.php');
 // The Nest-Beyond Configuration
 require_once('../config.php');
 
+if (defined('STDIN')) {
+  $datatype = $argv[1];
+} else { 
+  $datatype = $_GET['datatype'];
+}
+
+
 //Connect to the Database
 $con=mysql_connect($hostname,$username, $password) OR DIE ('Unable to connect to database! Please try again later.');
 mysql_select_db($dbname);
@@ -23,7 +30,7 @@ if (in_array(date_default_timezone_get(), $us_timezones)) {
 }
 
 //Get current Nest data (5 minute cron)
-if ($_GET['datatype'] === 'current'){
+if ($datatype === 'current'){
 	//Capture date and time of script execution
 	$runTime = $date = date('Y-m-d H:i:s');
 
@@ -52,15 +59,15 @@ if ($_GET['datatype'] === 'current'){
 		}
 	} elseif(strpos($infos->current_state->mode,'cool') !== false) {
 		if (is_array($infos->target->temperature)) {
-			$low_targettemp = null;
-			$high_targettemp = $infos->target->temperature[1];
+			$low_target_temp = null;
+			$high_target_temp = $infos->target->temperature[1];
 		} else {
 			$low_target_temp = null;
 			$high_target_temp = $infos->target->temperature;
 		}
 	} elseif(strpos($infos->current_state->mode,'range') !== false) {
-		$high_target_temp = $infos->target->temperature[0];
-		$low_target_temp = $infos->target->temperature[1];
+		$low_target_temp = $infos->target->temperature[0];
+		$high_target_temp = $infos->target->temperature[1];
 	}
 	
 	//Insert Current Values into Nest Database Table
@@ -73,7 +80,7 @@ if ($_GET['datatype'] === 'current'){
 	}
 } 
 //Get data from Nest energy reports (daily)
-elseif ($_GET['datatype'] === 'daily') {
+elseif ($datatype === 'daily') {
 	//Used to get Nest energy reports
 	$energy = $nest->getEnergyLatest();
 
