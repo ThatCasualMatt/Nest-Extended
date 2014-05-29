@@ -38,14 +38,14 @@ $ac_on = array(
 	'label' => 'AC On',
 	'color' => '#0000FF',
 	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .30)
+	'lines' => array('lineWidth' => 0, 'fill' => .50)
 );
 
 $fan_on = array(
 	'label' => 'Fan On',
 	'color' => '#FFFF00',
 	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .50)
+	'lines' => array('lineWidth' => 0, 'fill' => .30)
 );
 
 $away_status = array(
