@@ -1,9 +1,9 @@
 <?php
+// The Nest-Extended Configuration
+require_once('../config.php');
+
 // The Nest API Class file
 require_once('../libs/nest/nest.class.php');
-
-// The Nest-Beyond Configuration
-require_once('../config.php');
 
 if (defined('STDIN')) {
   $datatype = $argv[1];
