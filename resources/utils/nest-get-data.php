@@ -1,9 +1,9 @@
 <?php
 // The Nest-Extended Configuration
-require_once('../config.php');
+require_once(__DIR__ . '/../config.php');
 
 // The Nest API Class file
-require_once('../libs/nest/nest.class.php');
+require_once(__DIR__ . '/../libs/nest/nest.class.php');
 
 if (defined('STDIN')) {
   $datatype = $argv[1];
@@ -113,3 +113,4 @@ elseif ($datatype === 'daily') {
 
 //Close mySQL DB connection
 mysql_close($con);
+
