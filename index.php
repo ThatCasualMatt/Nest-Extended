@@ -1,17 +1,17 @@
-<?php include '/resources/config.php'; ?>
+<?php include 'resources/config.php'; ?>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Nest-Extended</title>
-	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/resources/libs/flot/excanvas.min.js"></script><![endif]-->
-	<script language="javascript" type="text/javascript" src="/resources/libs/flot/jquery.min.js"></script>
-	<script language="javascript" type="text/javascript" src="/resources/libs/flot/jquery.flot.min.js"></script>
-	<script language="javascript" src="/resources/libs/flot/jquery.flot.time.min.js"></script>
-	<script language="javascript" src="/resources/libs/flot/date.min.js"></script>
-	<script language="javascript" type="text/javascript" src="/resources/libs/flot/jquery.flot.rangeselection.min.js"></script>
-	<script language="javascript" type="text/javascript" src="/resources/libs/flot/jquery.flot.tooltip.min.js"></script>
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="resources/libs/flot/excanvas.min.js"></script><![endif]-->
+	<script language="javascript" type="text/javascript" src="resources/libs/flot/jquery.min.js"></script>
+	<script language="javascript" type="text/javascript" src="resources/libs/flot/jquery.flot.min.js"></script>
+	<script language="javascript" src="resources/libs/flot/jquery.flot.time.min.js"></script>
+	<script language="javascript" src="resources/libs/flot/date.min.js"></script>
+	<script language="javascript" type="text/javascript" src="resources/libs/flot/jquery.flot.rangeselection.min.js"></script>
+	<script language="javascript" type="text/javascript" src="resources/libs/flot/jquery.flot.tooltip.min.js"></script>
 	<script language="javascript"> 
-	timezoneJS.timezone.zoneFileBasePath = "/resources/libs/flot/tz";
+	timezoneJS.timezone.zoneFileBasePath = "resources/libs/flot/tz";
 	timezoneJS.timezone.defaultZoneFile = [];
 	timezoneJS.timezone.init({async: false});
 	
@@ -42,7 +42,7 @@
 		var currenttime = d.getTime();
 		var yesterdaytime = currenttime - 86400000;
 	
-		$.getJSON('/resources/utils/nest-get-json.php?datatype=temp', function(tempdata) {
+		$.getJSON('resources/utils/nest-get-json.php?datatype=temp', function(tempdata) {
 				var tempoptions = {
 					xaxes: [{ 
 						mode: "time", 
@@ -97,7 +97,7 @@
 				});
 			});
 		
-		$.getJSON('/resources/utils/nest-get-json.php?datatype=humid', function(humiddata) {		
+		$.getJSON('resources/utils/nest-get-json.php?datatype=humid', function(humiddata) {		
 				var humidoptions = {
 					xaxes: [{ 
 						mode: "time", 
@@ -121,7 +121,7 @@
 			humidGraph = $.plot("#humidity",humiddata,humidoptions);
 		});
 		
-		$.getJSON('/resources/utils/nest-get-json.php?datatype=misc', function(miscdata) {	
+		$.getJSON('resources/utils/nest-get-json.php?datatype=misc', function(miscdata) {	
 				var miscoptions = {
 					xaxes: [{ 
 						mode: "time", 
