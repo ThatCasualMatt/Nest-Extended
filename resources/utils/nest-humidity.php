@@ -15,8 +15,7 @@ function setHumidity($nest, $humidity) {
 		return($success);
 }
 
-$locationinfo = $nest->getUserLocations();
-$exttemp=round($locationinfo[0]->outside_temperature,0);
+$exttemp = $nest->temperatureInCelsius($locations[0]->outside_temperature);
 if ($exttemp>=0) {
 	$autotarget=$maxhumidity;
 } else {
