@@ -20,6 +20,6 @@ if ($exttemp>=0) {
 	$autotarget=$maxhumidity;
 } else {
 	// Drop target humidity 5% for every 5degree C drop below 0
-	$autotarget=$maxhumidity-(5*round(abs($exttemp/5)));
+	$autotarget = max(0, round($maxhumidity + $exttemp));
 	}
 $success=setHumidity($nest, $autotarget);
