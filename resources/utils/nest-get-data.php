@@ -65,7 +65,14 @@ if ($datatype === 'current'){
 
 	//Set the humidity level if enabled.
 	if ($set_humidity) {
-		require_once('nest-humidity.php');
+		$exttemp = $nest->temperatureInCelsius($locations[0]->outside_temperature);
+		// Drop target humidity 5% for every 5degree C drop below 0
+		$target = max(0, $maxhumidity + $exttemp);
+		$target = round( min($target, $maxhumidity, 60) );
+		if (abs($target - $infos->target->humidity) >= 1) {
+			// Target humidity has changed
+			$nest->setHumidity(intval($target));
+		}
 	}
 } 
 //Get data from Nest energy reports (daily)
