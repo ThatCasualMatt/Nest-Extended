@@ -64,7 +64,7 @@ if ($datatype === 'current'){
 	$result = mysql_query($query);	
 
 	//Set the humidity level if enabled.
-	if ($set_humidity === 1) {
+	if ($set_humidity) {
 		require_once('nest-humidity.php');
 	}
 } 

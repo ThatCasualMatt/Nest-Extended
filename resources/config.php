@@ -17,6 +17,6 @@ $dbname='DATABASE';
 //WeatherUnderground API - Sign up at http://www.wunderground.com/weather/api/?apiref=c133a2be0b541640
 $wu_api_key = 'WeatherUnderground API Key';
 
-//Automatically set humidity target based on outside temperature? 1 = yes, 0 = no
-$set_humidity=1;
+//Automatically set humidity target based on outside temperature?
+$set_humidity=true;
 $maxhumidity=45;  //What is the maximum target humidity you would like Nest to reach?
