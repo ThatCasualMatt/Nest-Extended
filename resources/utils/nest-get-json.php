@@ -3,10 +3,13 @@
 require_once('../config.php');
 
 //Connect to the Database.
-$con=mysql_connect($hostname,$username, $password) OR DIE ('Unable to connect to database! Please try again later.');
-mysql_select_db($dbname);
+$con = new mysqli($hostname, $username, $password, $dbname);
+if ($con->connect_error) {
+	trigger_error('Database connection failed: ' . $con->connect_error, E_USER_ERROR);
+}
 
 if ($_GET['datatype'] === 'temp'){
+
 //Setup arrays for Temperature Graph
 $outside_temp = array(
 	'label' => 'Outside Temp.',
@@ -62,26 +65,32 @@ $leaf_status = array(
 	'lines' => array('lineWidth' => 0, 'fill' => .30)
 );
 
-
 //Get data for temperature.
-$query = mysql_query('SELECT log_datetime, outside_temp, current_temp, low_target_temp, high_target_temp, heat_on, ac_on, fan_on, away_status, leaf_status FROM nest');
+$sql='SELECT log_datetime, outside_temp, current_temp, low_target_temp, high_target_temp, heat_on, ac_on, fan_on, away_status, leaf_status FROM nest';
+$query = $con->query($sql);
+ 
+if($query === false) {
+	trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
+} else {
+	$query->data_seek(0);
+	while ($r = $query->fetch_assoc()) {
+		$time = strtotime($r['log_datetime'])*1000;
+		$outside_temp['data'][] = array($time, $r['outside_temp']);
+		$current_temp['data'][] = array($time, $r['current_temp']);
+		if ($r['low_target_temp'] !== "0.0"){$low_target_temp['data'][] = array($time, $r['low_target_temp']);} else {$low_target_temp['data'][] = null;};
+		if ($r['high_target_temp'] !== "0.0"){$high_target_temp['data'][] = array($time, $r['high_target_temp']);} else {$high_target_temp['data'][] = null;};
+		if ($r['heat_on'] === "1") {$heat_on['data'][] = array($time, $r['heat_on']);} else {$heat_on['data'][] = null;};
+		if ($r['ac_on'] === "1") {$ac_on['data'][] = array($time, $r['ac_on']);} else {$ac_on['data'][] = null;};
+		if ($r['fan_on'] === "1") {$fan_on['data'][] = array($time, $r['fan_on']);} else {$fan_on['data'][] = null;};
+		if ($r['away_status'] === "1") {$away_status['data'][] = array($time, .2);} else {$away_status['data'][] = null;};
+		if ($r['leaf_status'] === "1") {$leaf_status['data'][] = array($time, .1, 0);} else {$leaf_status['data'][] = null;};
+	}
 
-while($r = mysql_fetch_array($query)) {
-	$time = strtotime($r['log_datetime'])*1000;
-	$outside_temp['data'][] = array($time, $r['outside_temp']);
-	$current_temp['data'][] = array($time, $r['current_temp']);
-	if ($r['low_target_temp'] !== "0.0"){$low_target_temp['data'][] = array($time, $r['low_target_temp']);} else {$low_target_temp['data'][] = null;};
-	if ($r['high_target_temp'] !== "0.0"){$high_target_temp['data'][] = array($time, $r['high_target_temp']);} else {$high_target_temp['data'][] = null;};
-	if ($r['heat_on'] === "1") {$heat_on['data'][] = array($time, $r['heat_on']);} else {$heat_on['data'][] = null;};
-	if ($r['ac_on'] === "1") {$ac_on['data'][] = array($time, $r['ac_on']);} else {$ac_on['data'][] = null;};
-	if ($r['fan_on'] === "1") {$fan_on['data'][] = array($time, $r['fan_on']);} else {$fan_on['data'][] = null;};
-	if ($r['away_status'] === "1") {$away_status['data'][] = array($time, .2);} else {$away_status['data'][] = null;};
-	if ($r['leaf_status'] === "1") {$leaf_status['data'][] = array($time, .1, 0);} else {$leaf_status['data'][] = null;};
+	//Build the JSON
+	$data = array($outside_temp,$current_temp,$low_target_temp,$high_target_temp,$heat_on,$ac_on,$fan_on,$away_status,$leaf_status);
+	header('Content-Type: application/json');
+	echo json_encode($data);
 }
-
-//Build the JSON
-$data = array($outside_temp,$current_temp,$low_target_temp,$high_target_temp,$heat_on,$ac_on,$fan_on,$away_status,$leaf_status);
-print json_encode($data);
 
 } elseif ($_GET['datatype'] === 'humid'){
 //Setup arrays for Humidity Graph
@@ -101,17 +110,24 @@ $current_humidity = array(
 );
 
 //Get data for humidity.
-$query = mysql_query('SELECT log_datetime, outside_humidity, target_humidity, current_humidity, humidifier_on FROM nest');
-
-while($r = mysql_fetch_array($query)) {
-	$time = strtotime($r['log_datetime'])*1000;
-	$outside_humidity['data'][] = array($time, $r['outside_humidity']);
-	$current_humidity['data'][]= array ($time, $r['current_humidity']);
-	$target_humidity['data'][]= array ($time, $r['target_humidity']);
+$sql='SELECT log_datetime, outside_humidity, target_humidity, current_humidity, humidifier_on FROM nest';
+$query=$con->query($sql);
+ 
+if($query === false) {
+	trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
+} else {
+	$query->data_seek(0);
+	while ($r = $query->fetch_assoc()) {
+		$time = strtotime($r['log_datetime'])*1000;
+		$outside_humidity['data'][] = array($time, $r['outside_humidity']);
+		$current_humidity['data'][]= array ($time, $r['current_humidity']);
+		$target_humidity['data'][]= array ($time, $r['target_humidity']);
+	}
+	//Build the JSON
+	$data = array($outside_humidity,$current_humidity,$target_humidity);
+	header('Content-Type: application/json');
+	print json_encode($data);
 }
-//Build the JSON
-$data = array($outside_humidity,$current_humidity,$target_humidity);
-print json_encode($data);
 
 } elseif ($_GET["datatype"] === "misc"){
 //Setup arrays for Misc Graph
@@ -127,17 +143,23 @@ $is_online = array(
 );
 
 //Get data for misc.
-$query = mysql_query('SELECT log_datetime, battery_level, is_online FROM nest');
-
-while($r = mysql_fetch_array($query)) {
-	$time = strtotime($r['log_datetime'])*1000;
-	$battery_level['data'][] = array($time, $r['battery_level']);
-	if ($r['is_online'] === "1") {$is_online['data'][] = array($time, $r['is_online']);} else {$is_online['data'][] = null;};
+$sql = 'SELECT log_datetime, battery_level, is_online FROM nest';
+$query = $con->query($sql);
+ 
+if ($query === false) {
+	trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
+} else {
+	$query->data_seek(0);
+	while ($r = $query->fetch_assoc()) {
+		$time = strtotime($r['log_datetime'])*1000;
+		$battery_level['data'][] = array($time, $r['battery_level']);
+		if ($r['is_online'] === "1") {$is_online['data'][] = array($time, $r['is_online']);} else {$is_online['data'][] = null;};
+	}
+	//Build the JSON
+	$data = array($battery_level,$is_online);
+	header('Content-Type: application/json');
+	print json_encode($data);
 }
 
-//Build the JSON
-$data = array($battery_level,$is_online);
-print json_encode($data);
-
 }
-mysql_close($con);
+$con->close();
