@@ -8,70 +8,66 @@ if ($con->connect_error) {
 	trigger_error('Database connection failed: ' . $con->connect_error, E_USER_ERROR);
 }
 
-if ($_GET['datatype'] === 'temp'){
+switch ($_GET['datatype']) {
+case "temp":
+	//Setup arrays for Temperature Graph
+	$outside_temp = array(
+		'label' => 'Outside Temp.',
+		'color' => '#DF7401',
+	);
 
-//Setup arrays for Temperature Graph
-$outside_temp = array(
-	'label' => 'Outside Temp.',
-	'color' => '#DF7401',
-);
+	$current_temp = array(
+		'label' => 'Current Temp.',
+		'color' => '#B40404',
+	);
 
-$current_temp = array(
-	'label' => 'Current Temp.',
-	'color' => '#B40404',
-);
+	$low_target_temp = array(
+		'label' => 'Target Temp.',
+		'color' => '#848484',
+	);
 
-$low_target_temp = array(
-	'label' => 'Target Temp.',
-	'color' => '#848484',
-);
+	$high_target_temp = array(
+		'color' => '#848484',
+	);
 
-$high_target_temp = array(
-	'color' => '#848484',
-);
+	$heat_on = array(
+		'label' => 'Heat On',
+		'color' => '#FF0000',
+		'yaxis' => 2,
+		'lines' => array('lineWidth' => 0, 'fill' => .30)
+	);
 
-$heat_on = array(
-	'label' => 'Heat On',
-	'color' => '#FF0000',
-	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .30)
-);
+	$ac_on = array(
+		'label' => 'AC On',
+		'color' => '#0000FF',
+		'yaxis' => 2,
+		'lines' => array('lineWidth' => 0, 'fill' => .50)
+	);
 
-$ac_on = array(
-	'label' => 'AC On',
-	'color' => '#0000FF',
-	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .50)
-);
+	$fan_on = array(
+		'label' => 'Fan On',
+		'color' => '#FFFF00',
+		'yaxis' => 2,
+		'lines' => array('lineWidth' => 0, 'fill' => .30)
+	);
 
-$fan_on = array(
-	'label' => 'Fan On',
-	'color' => '#FFFF00',
-	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .30)
-);
+	$away_status = array(
+		'label' => 'Away Mode',
+		'color' => '#000000',
+		'yaxis' => 2,
+		'lines' => array('lineWidth' => 0, 'fill' => .30)
+	);
 
-$away_status = array(
-	'label' => 'Away Mode',
-	'color' => '#000000',
-	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .30)
-);
+	$leaf_status = array(
+		'label' => 'Leaf Earning',
+		'color' => '#00FF00',
+		'yaxis' => 2,
+		'lines' => array('lineWidth' => 0, 'fill' => .30)
+	);
 
-$leaf_status = array(
-	'label' => 'Leaf Earning',
-	'color' => '#00FF00',
-	'yaxis' => 2,
-	'lines' => array('lineWidth' => 0, 'fill' => .30)
-);
-
-//Get data for temperature.
-$sql='SELECT log_datetime, outside_temp, current_temp, low_target_temp, high_target_temp, heat_on, ac_on, fan_on, away_status, leaf_status FROM nest';
-$query = $con->query($sql);
- 
-if($query === false) {
-	trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
-} else {
+	//Get data for temperature.
+	$sql='SELECT log_datetime, outside_temp, current_temp, low_target_temp, high_target_temp, heat_on, ac_on, fan_on, away_status, leaf_status FROM nest';
+	$query = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 	$query->data_seek(0);
 	while ($r = $query->fetch_assoc()) {
 		$time = strtotime($r['log_datetime'])*1000;
@@ -90,32 +86,28 @@ if($query === false) {
 	$data = array($outside_temp,$current_temp,$low_target_temp,$high_target_temp,$heat_on,$ac_on,$fan_on,$away_status,$leaf_status);
 	header('Content-Type: application/json');
 	echo json_encode($data);
-}
+	break;
 
-} elseif ($_GET['datatype'] === 'humid'){
-//Setup arrays for Humidity Graph
-$outside_humidity = array(
-	'label' => 'Outside Humidity',
-	'color' => '#D7DF01'
-);
+case "humid":
+	//Setup arrays for Humidity Graph
+	$outside_humidity = array(
+		'label' => 'Outside Humidity',
+		'color' => '#D7DF01'
+	);
 
-$target_humidity = array(
-	'label' => 'Target Humidity',
-	'color' => '#5882FA'
-);
+	$target_humidity = array(
+		'label' => 'Target Humidity',
+		'color' => '#5882FA'
+	);
 
-$current_humidity = array(
-	'label' => 'Current Humidity',
-	'color' => '#0B0B61'
-);
+	$current_humidity = array(
+		'label' => 'Current Humidity',
+		'color' => '#0B0B61'
+	);
 
-//Get data for humidity.
-$sql='SELECT log_datetime, outside_humidity, target_humidity, current_humidity, humidifier_on FROM nest';
-$query=$con->query($sql);
- 
-if($query === false) {
-	trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
-} else {
+	//Get data for humidity.
+	$sql='SELECT log_datetime, outside_humidity, target_humidity, current_humidity, humidifier_on FROM nest';
+	$query=$con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 	$query->data_seek(0);
 	while ($r = $query->fetch_assoc()) {
 		$time = strtotime($r['log_datetime'])*1000;
@@ -123,43 +115,40 @@ if($query === false) {
 		$current_humidity['data'][]= array ($time, $r['current_humidity']);
 		$target_humidity['data'][]= array ($time, $r['target_humidity']);
 	}
+
 	//Build the JSON
 	$data = array($outside_humidity,$current_humidity,$target_humidity);
 	header('Content-Type: application/json');
-	print json_encode($data);
-}
+	echo json_encode($data);
+	break;
 
-} elseif ($_GET["datatype"] === "misc"){
-//Setup arrays for Misc Graph
-$battery_level = array(
-	'label' => 'Battery Level',
-	'color' => '#088A08'
-);
+case "misc":
+	//Setup arrays for Misc Graph
+	$battery_level = array(
+		'label' => 'Battery Level',
+		'color' => '#088A08'
+	);
 
-$is_online = array(
-	'label' => 'Nest Online',
-	'yaxis' => 2,
-	'lines' => array("lineWidth" => 0, "fill" => .50, "shadowSize" => 0)
-);
+	$is_online = array(
+		'label' => 'Nest Online',
+		'yaxis' => 2,
+		'lines' => array("lineWidth" => 0, "fill" => .50, "shadowSize" => 0)
+	);
 
-//Get data for misc.
-$sql = 'SELECT log_datetime, battery_level, is_online FROM nest';
-$query = $con->query($sql);
- 
-if ($query === false) {
-	trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
-} else {
+	//Get data for misc.
+	$sql = 'SELECT log_datetime, battery_level, is_online FROM nest';
+	$query = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 	$query->data_seek(0);
 	while ($r = $query->fetch_assoc()) {
 		$time = strtotime($r['log_datetime'])*1000;
 		$battery_level['data'][] = array($time, $r['battery_level']);
 		if ($r['is_online'] === "1") {$is_online['data'][] = array($time, $r['is_online']);} else {$is_online['data'][] = null;};
 	}
+
 	//Build the JSON
 	$data = array($battery_level,$is_online);
 	header('Content-Type: application/json');
-	print json_encode($data);
-}
-
+	echo json_encode($data);
+	break;
 }
 $con->close();
