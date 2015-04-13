@@ -1,4 +1,3 @@
-<?php include 'resources/config.php'; ?>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -10,11 +9,8 @@
 	<script language="javascript" src="resources/libs/flot/date.min.js"></script>
 	<script language="javascript" type="text/javascript" src="resources/libs/flot/jquery.flot.rangeselection.min.js"></script>
 	<script language="javascript" type="text/javascript" src="resources/libs/flot/jquery.flot.tooltip.min.js"></script>
-	<script language="javascript"> 
-	timezoneJS.timezone.zoneFileBasePath = "resources/libs/flot/tz";
-	timezoneJS.timezone.defaultZoneFile = [];
-	timezoneJS.timezone.init({async: false});
-	
+	<script language="javascript">
+
 	var temperatureGraph;
 	var humidGraph;
 	var miscellanyGraph;
@@ -36,114 +32,156 @@
 		miscellanyGraph.setupGrid();
 		miscellanyGraph.draw();
 	}
-	
-	function getData() {	
+
+	function getSeries(fulldata, key) {
+		var t = fulldata["log_datetime"];
+		var y = fulldata[key];
+		var zipped = [];
+		for (index = 0; index < t.length; index++) {
+			zipped.push( [1000*t[index], y[index]] );
+		}
+		return zipped;
+	}
+
+	function nullify(series) {
+		for (index = 0; index < series.length; index++) {
+			if (series[index][1] <= 0) series[index][1] = null; // Remove non-positive values
+		}
+		return series;
+	}
+
+	function getData() {
 		var d = new Date();
 		var currenttime = d.getTime();
 		var yesterdaytime = currenttime - 86400000;
-	
-		$.getJSON('resources/utils/nest-get-json.php?datatype=temp', function(tempdata) {
-				var tempoptions = {
-					xaxes: [{ 
-						mode: "time", 
-						timezone: "<?php echo date_default_timezone_get()?>",
-						timeformat: "%m/%d/%Y %H:%M",
-						min: yesterdaytime,
-						max: currenttime
-					}], 
-					yaxes: [{
-					}, {
-						show: false,
-						min: 0,
-						max: 1
-					}],
-					legend: { 
-						noColumns: 4,
-						position: "nw"		
-					}, 
-					grid: {
-						hoverable: true, 
-					},
-					tooltip:true
-				};
-				temperatureGraph = $.plot("#temperature",tempdata,tempoptions);
-			
-				var sData = $.extend(true,[],tempdata);
-				for(var i=0;i<sData.length;i++){
-					sData[i].color = '#ccc';
-					sData[i].label = undefined;
+
+		$.getJSON('resources/utils/nest-get-json.php', function(fulldata) {
+			var tempdata = [
+				{label: "Outside Temp.", color: "#DF7401", data: getSeries(fulldata, "outside_temp")},
+				{label: "Current Temp.", color: "#B40404", data: getSeries(fulldata, "current_temp")},
+				{label: "Target Temp.", color: "#848484", data: getSeries(fulldata, "low_target_temp")},
+				{color: "#848484", data: nullify(getSeries(fulldata, "high_target_temp"))},
+				{label: "Heat On", color: "#FF0000", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+					data: nullify(getSeries(fulldata, "heat_on"))},
+				{label: "AC On", color: "#0000FF", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+					data: nullify(getSeries(fulldata, "ac_on"))},
+				{label: "Fan On", color: "#FFFF00", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+					data: nullify(getSeries(fulldata, "fan_on"))},
+				{label: "Away Mode", color: "#000000", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+					data: nullify(getSeries(fulldata, "away_status"))},
+				{label: "Leaf Earning", color: "#00FF00", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+					data: nullify(getSeries(fulldata, "leaf_status"))},
+			];
+
+			var tempoptions = {
+				xaxes: [{
+					mode: "time",
+					timeformat: "%m/%d/%Y %H:%M",
+					timezone: "browser",
+					min: yesterdaytime,
+					max: currenttime
+				}],
+				yaxes: [{
+				}, {
+					show: false,
+					min: 0,
+					max: 1
+				}],
+				legend: {
+					noColumns: 4,
+					position: "nw"
+				},
+				grid: {
+					hoverable: true,
+				},
+				tooltip:true
+			};
+			temperatureGraph = $.plot("#temperature",tempdata,tempoptions);
+
+			var sData = $.extend(true,[],tempdata);
+			for(var i=0;i<sData.length;i++){
+				sData[i].color = '#ccc';
+				sData[i].label = undefined;
+			}
+			$.plot("#navigation",sData,{
+				rangeselection:{
+					color: "#feb",
+					start: yesterdaytime,
+					end: currenttime,
+					enabled: true,
+					callback: rangeselectionCallback
+				},
+				xaxes: [{
+					mode: "time",
+					timeformat: "%m/%d/%Y %H:%M",
+					timezone: "browser",
+				}],
+				yaxes: [{
+					show: false
+				}, {
+					show: false
+				}],
+				lines: {
+					show: false
 				}
-				$.plot("#navigation",sData,{
-					rangeselection:{
-						color: "#feb",
-						start: yesterdaytime,
-						end: currenttime,
-						enabled: true,
-						callback: rangeselectionCallback
-					},
-					xaxes: [{ 
-						mode: "time", 
-						timezone: "<?php echo date_default_timezone_get()?>",
-						timeformat: "%m/%d/%Y %H:%M",
-					}],
-					yaxes: [{
-						show: false
-					}, {
-						show: false
-					}],
-					lines: { 
-						show: false
-					}
-				});
 			});
-		
-		$.getJSON('resources/utils/nest-get-json.php?datatype=humid', function(humiddata) {		
-				var humidoptions = {
-					xaxes: [{ 
-						mode: "time", 
-						timezone: "<?php echo date_default_timezone_get()?>",
-						timeformat: "%m/%d/%Y %H:%M",
-						min: yesterdaytime,
-						max: currenttime
-					}],
-					yaxes: [{
-						min:0,
-						max:100
-					}],
-					legend: { 
-						position: "sw"		
-					}, 
-					grid: {
-						hoverable: true, 
-					},
-					tooltip:true
-				};
+
+			humiddata = [
+				{label: "Outside Humidity", color: "#D7DF01", data: getSeries(fulldata, "outside_humidity")},
+				{label: "Target Humidity",  color: "#5882FA", data: getSeries(fulldata, "target_humidity")},
+				{label: "Current Humidity", color: "#0B0B61", data: getSeries(fulldata, "current_humidity")},
+			];
+
+			var humidoptions = {
+				xaxes: [{
+					mode: "time",
+					timeformat: "%m/%d/%Y %H:%M",
+					timezone: "browser",
+					min: yesterdaytime,
+					max: currenttime
+				}],
+				yaxes: [{
+					min:0,
+					max:100
+				}],
+				legend: {
+					position: "sw"
+				},
+				grid: {
+					hoverable: true,
+				},
+				tooltip:true
+			};
 			humidGraph = $.plot("#humidity",humiddata,humidoptions);
-		});
-		
-		$.getJSON('resources/utils/nest-get-json.php?datatype=misc', function(miscdata) {	
-				var miscoptions = {
-					xaxes: [{ 
-						mode: "time", 
-						timezone: "<?php echo date_default_timezone_get()?>",
-						timeformat: "%m/%d/%Y %H:%M",
-						min: yesterdaytime,
-						max: currenttime
-					}],
-					yaxes: [{
-					}, {
-						show: false,
-						min: 0,
-						max: 1
-					}],
-					legend: { 
-						position: "sw"		
-					}, 
-					grid: {
-						hoverable: true, 
-					},
-					tooltip:true
-				};
+
+			miscdata = [
+				{label: "Battery Level", color: "#088A08", data: getSeries(fulldata, "battery_level")},
+				{label: "Nest Online",  yaxis: 2, lines: {lineWidth: 0, fill: .50, shadowSize: 0},
+					data: nullify(getSeries(fulldata, "is_online"))},
+			];
+
+			var miscoptions = {
+				xaxes: [{
+					mode: "time",
+					timeformat: "%m/%d/%Y %H:%M",
+					timezone: "browser",
+					min: yesterdaytime,
+					max: currenttime
+				}],
+				yaxes: [{
+				}, {
+					show: false,
+					min: 0,
+					max: 1
+				}],
+				legend: {
+					position: "sw"
+				},
+				grid: {
+					hoverable: true,
+				},
+				tooltip:true
+			};
 			miscellanyGraph = $.plot("#miscellany",miscdata,miscoptions);
 		});
 		setInterval(getData, 300000);
