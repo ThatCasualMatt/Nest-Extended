@@ -100,7 +100,6 @@ elseif ($datatype === 'daily') {
 			$sql = 'INSERT INTO energy_reports (date, total_heating_time, heating_degree_days, total_cooling_time, cooling_degree_days, total_fan_time, total_humidifier_time, total_dehumidifier_time, leafs, recent_avg_used, usage_over_avg) VALUES ("'.$day->day.'", "'.$day->total_heating_time.'", "'.$heating_degree_days.'", "'.$day->total_cooling_time.'", "'.$cooling_degree_days.'", "'.$day->total_fan_cooling_time.'", "'.$day->total_humidifier_time.'", "'.$day->total_dehumidifier_time.'", "'.$day->leafs.'", "'.$day->recent_avg_used.'", "'.$day->usage_over_avg.'")';
             $result = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 		}
-        $result->close();
 	}
 }
 
