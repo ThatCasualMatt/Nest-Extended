@@ -8,19 +8,33 @@ if ($con->connect_error) {
 	trigger_error('Database connection failed: ' . $con->connect_error, E_USER_ERROR);
 }
 
-// Calculate date 1 month ago to limit quantity of data
+$str = '';
 $cutoff = new DateTime('now');
-$cutoff->sub(new DateInterval('P1M'));
-$cutoff_ = $cutoff->format('Y-m-d');
+switch ($_GET['datatype']) {
+case 'current':
+	// Calculate date 1 month ago to limit quantity of data
+	$cutoff->sub(new DateInterval('P1M'));
+	$cutoff_ = $cutoff->format('Y-m-d');
+
+	$sql = "SELECT UNIX_TIMESTAMP(log_datetime) as timestamp, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, low_target_temp, high_target_temp, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online FROM nest WHERE log_datetime >= '$cutoff_'";
+	break;
+
+case 'daily':
+	// Calculate date 6 months ago to limit quantity of data
+	$cutoff->sub(new DateInterval('P6M'));
+	$cutoff_ = $cutoff->format('Y-m-d');
+
+	$sql = "SELECT UNIX_TIMESTAMP(date) as timestamp, total_heating_time, total_cooling_time, heating_degree_days, cooling_degree_days FROM energy_reports WHERE date >= '$cutoff_'";
+	break;
+}
 
 // Gather all data into one associative array
-$sql = "SELECT UNIX_TIMESTAMP(log_datetime) as log_datetime, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, low_target_temp, high_target_temp, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online FROM nest WHERE log_datetime >= '$cutoff_'";
-$query = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 $data = array();
+$query = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 while ($r = $query->fetch_assoc()) {
-    foreach ($r as $key => $value) {
-        $data[$key][] = floatval($value); // Append row
-    }
+	foreach ($r as $key => $value) {
+		$data[$key][] = floatval($value); // Append row
+	}
 }
 $query->close();
 

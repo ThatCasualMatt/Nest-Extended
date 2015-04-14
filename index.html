@@ -34,7 +34,7 @@
 	}
 
 	function getSeries(fulldata, key) {
-		var t = fulldata["log_datetime"];
+		var t = fulldata["timestamp"];
 		var y = fulldata[key];
 		var zipped = [];
 		for (index = 0; index < t.length; index++) {
@@ -55,7 +55,7 @@
 		var currenttime = d.getTime();
 		var yesterdaytime = currenttime - 86400000;
 
-		$.getJSON('resources/utils/nest-get-json.php', function(fulldata) {
+		$.getJSON('resources/utils/nest-get-json.php?datatype=current', function(fulldata) {
 			var tempdata = [
 				{label: "Outside Temp.", color: "#DF7401", data: getSeries(fulldata, "outside_temp")},
 				{label: "Current Temp.", color: "#B40404", data: getSeries(fulldata, "current_temp")},
@@ -98,12 +98,8 @@
 			};
 			temperatureGraph = $.plot("#temperature",tempdata,tempoptions);
 
-			var sData = $.extend(true,[],tempdata);
-			for(var i=0;i<sData.length;i++){
-				sData[i].color = '#ccc';
-				sData[i].label = undefined;
-			}
-			$.plot("#navigation",sData,{
+			$.plot("#navigation",
+                [{color: "#DF7401", data: getSeries(fulldata, "outside_temp")}], {
 				rangeselection:{
 					color: "#feb",
 					start: yesterdaytime,
@@ -113,17 +109,12 @@
 				},
 				xaxes: [{
 					mode: "time",
-					timeformat: "%m/%d/%Y %H:%M",
+					timeformat: "%m/%d/%Y",
 					timezone: "browser",
 				}],
 				yaxes: [{
 					show: false
-				}, {
-					show: false
 				}],
-				lines: {
-					show: false
-				}
 			});
 
 			humiddata = [
@@ -135,7 +126,7 @@
 			var humidoptions = {
 				xaxes: [{
 					mode: "time",
-					timeformat: "%m/%d/%Y %H:%M",
+					timeformat: "%m/%d %H:%M",
 					timezone: "browser",
 					min: yesterdaytime,
 					max: currenttime
@@ -163,7 +154,7 @@
 			var miscoptions = {
 				xaxes: [{
 					mode: "time",
-					timeformat: "%m/%d/%Y %H:%M",
+					timeformat: "%m/%d %H:%M",
 					timezone: "browser",
 					min: yesterdaytime,
 					max: currenttime
@@ -187,8 +178,37 @@
 		setInterval(getData, 300000);
 	};
 
+	function getEnergy() {
+		$.getJSON('resources/utils/nest-get-json.php?datatype=daily', function(fulldata) {
+			$.plot("#energy", [
+				{label: "Heating Time", color: "#200000", 
+                    data: getSeries(fulldata, "total_heating_time")},
+				{label: "Cooling Time", color: "#000020",
+                    data: getSeries(fulldata, "total_cooling_time")},
+				{label: "Heat Degree Days", color: "#800000", yaxis: 2, 
+                    data: getSeries(fulldata, "heating_degree_days")},
+				{label: "Cool Degree Days", color: "#000080", yaxis: 2,
+                    data: getSeries(fulldata, "cooling_degree_days")},
+                ], {
+                xaxes: [{
+                    mode: "time",
+                    timeformat: "%m/%d/%Y",
+                }],
+                legend: {
+                    noColumns: 2,
+                    position: "nw"
+                },
+                grid: {
+                    hoverable: true,
+                },
+                tooltip:true
+			});
+        });
+    };
+
 	$(function() {
 		getData();
+        getEnergy();
 	});
 </script>
 </head>
@@ -196,13 +216,16 @@
 <div id="wrapper" style="width:1000px;margin:0 auto;">
 <p>Nest Extended!</p>
 <div style="width:1000px">TEMPERATURE</div>
+<div id="navigation" style="width:1000px;height:100px;"></div>
 <div id="temperature" style="width:1000px;height:500px;"></div>
-<div id="navigation" style="width:1000px;height:60px;"></div>
 <div style="width:1000px;height:10px;">&nbsp;</div>
 <div style="width:500px;float:left;">HUMIDITY</div>
 <div style="width:500px;float:right;">BATTERY LEVEL</div>
 <div id="humidity" style="float:left;width:500px;height:250px;"></div>
 <div id="miscellany" style="float:right;width:500px;height:250px;"></div>
+<div style="width:1000px">ENERGY</div>
+<div id="energynav" style="width:1000px;height:100px;"></div>
+<div id="energy" style="width:1000px;height:500px;"></div>
 </div>
 </body>
 </html>
