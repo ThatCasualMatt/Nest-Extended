@@ -99,7 +99,7 @@
 			temperatureGraph = $.plot("#temperature",tempdata,tempoptions);
 
 			$.plot("#navigation",
-                [{color: "#DF7401", data: getSeries(fulldata, "outside_temp")}], {
+				[{color: "#DF7401", data: getSeries(fulldata, "outside_temp")}], {
 				rangeselection:{
 					color: "#feb",
 					start: yesterdaytime,
@@ -179,36 +179,87 @@
 	};
 
 	function getEnergy() {
+		var d = new Date();
+		var currenttime = d.getTime();
+		var lastmonth = currenttime - 30*86400000;
+		var initSpan = {start: lastmonth, end: currenttime};
+
 		$.getJSON('resources/utils/nest-get-json.php?datatype=daily', function(fulldata) {
-			$.plot("#energy", [
-				{label: "Heating Time", color: "#200000", 
-                    data: getSeries(fulldata, "total_heating_time")},
-				{label: "Cooling Time", color: "#000020",
-                    data: getSeries(fulldata, "total_cooling_time")},
-				{label: "Heat Degree Days", color: "#800000", yaxis: 2, 
-                    data: getSeries(fulldata, "heating_degree_days")},
+			function summary(o) {
+				var t = fulldata["timestamp"];
+				var heating = 0; // Heating time in seconds
+				var cooling = 0; // Cooling time in seconds
+				for (index = 0; index < t.length; index++) {
+					if ((o.start <= 1000*t[index]) && (1000*t[index] <= o.end)) {
+						heating += fulldata["total_heating_time"][index];
+						cooling += fulldata["total_cooling_time"][index];
+					}
+				}
+				$("#heating").text(heating/3600);
+				$("#cooling").text(cooling/3600);
+				$("#days").text((o.end - o.start)/86400000);
+			}
+
+			var energyGraph = $.plot("#energy", [
+				{label: "Heating Time", color: "#300000",
+					data: getSeries(fulldata, "total_heating_time")},
+				{label: "Cooling Time", color: "#000030",
+					data: getSeries(fulldata, "total_cooling_time")},
+				{label: "Heat Degree Days", color: "#800000", yaxis: 2,
+					data: nullify(getSeries(fulldata, "heating_degree_days"))},
 				{label: "Cool Degree Days", color: "#000080", yaxis: 2,
-                    data: getSeries(fulldata, "cooling_degree_days")},
-                ], {
-                xaxes: [{
-                    mode: "time",
-                    timeformat: "%m/%d/%Y",
-                }],
-                legend: {
-                    noColumns: 2,
-                    position: "nw"
-                },
-                grid: {
-                    hoverable: true,
-                },
-                tooltip:true
+					data: nullify(getSeries(fulldata, "cooling_degree_days"))},
+				], {
+				xaxes: [{
+					mode: "time",
+					timeformat: "%m/%d/%Y",
+					min: initSpan.start,
+					max: initSpan.end
+				}],
+				legend: {
+					noColumns: 2,
+					position: "nw"
+				},
+				grid: {
+					hoverable: true,
+				},
+				tooltip:true
 			});
-        });
-    };
+
+		$.plot("#energynav",
+				[{color: "#800000", data: nullify(getSeries(fulldata, "heating_degree_days"))},
+				 {color: "#000080", data: nullify(getSeries(fulldata, "cooling_degree_days"))}],
+				{rangeselection:{
+					color: "#feb",
+					start: initSpan.start,
+					end: initSpan.end,
+					enabled: true,
+					callback: function(o){
+						console.log("New energy selection:"+o.start+","+o.end);
+						var tempxaxis = energyGraph.getAxes().xaxis;
+						tempxaxis.options.min = o.start;
+						tempxaxis.options.max = o.end;
+						energyGraph.setupGrid();
+						energyGraph.draw();
+						summary(o);
+					},
+				},
+				xaxes: [{
+					mode: "time",
+					timeformat: "%m/%d/%Y",
+					timezone: "browser",
+				}],
+				yaxes: [{
+					show: false
+				}],
+			});
+			summary(initSpan);
+		});
+	};
 
 	$(function() {
 		getData();
-        getEnergy();
+		getEnergy();
 	});
 </script>
 </head>
@@ -226,6 +277,7 @@
 <div style="width:1000px">ENERGY</div>
 <div id="energynav" style="width:1000px;height:100px;"></div>
 <div id="energy" style="width:1000px;height:500px;"></div>
+Displaying <span id="heating">heat</span> heating hours, <span id="cooling">cool</span> cooling hours for <span id="days">number</span> days.
 </div>
 </body>
 </html>
