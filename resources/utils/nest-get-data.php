@@ -13,8 +13,10 @@ if (defined('STDIN')) {
 
 
 //Connect to the Database
-$con=mysql_connect($hostname,$username, $password) OR DIE ('Unable to connect to database! Please try again later.');
-mysql_select_db($dbname);
+$con = new mysqli($hostname, $username, $password, $dbname);
+if ($con->connect_error) {
+	trigger_error('Database connection failed: ' . $con->connect_error, E_USER_ERROR);
+}
 
 //Create a new Nest Object
 $nest = new Nest();
@@ -60,8 +62,8 @@ if ($datatype === 'current'){
 	}
 	
 	//Insert Current Values into Nest Database Table
-	$query = 'INSERT INTO nest (log_datetime, location, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, temp_mode, low_target_temp, high_target_temp, time_to_target, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online) VALUES ("'.$runTime.'", "'.$postal_code.'", "'.$locations[0]->outside_temperature.'", "'.$locations[0]->outside_humidity.'", "'.$locations[0]->away.'", "'.$infos->current_state->leaf.'", "'.$infos->current_state->temperature.'", "'.$infos->current_state->humidity.'", "'.$infos->current_state->mode.'", "'.$low_target_temp.'", "'.$high_target_temp.'", "'.$infos->target->time_to_target.'","'.$infos->target->humidity.'","'.$infos->current_state->heat.'","'.$infos->current_state->humidifier.'","'.$infos->current_state->ac.'","'.$infos->current_state->fan.'","'.$infos->current_state->battery_level.'","'.$infos->network->online.'")';
-	$result = mysql_query($query);	
+	$sql = 'INSERT INTO nest (log_datetime, location, outside_temp, outside_humidity, away_status, leaf_status, current_temp, current_humidity, temp_mode, low_target_temp, high_target_temp, time_to_target, target_humidity, heat_on, humidifier_on, ac_on, fan_on, battery_level, is_online) VALUES ("'.$runTime.'", "'.$postal_code.'", "'.$locations[0]->outside_temperature.'", "'.$locations[0]->outside_humidity.'", "'.$locations[0]->away.'", "'.$infos->current_state->leaf.'", "'.$infos->current_state->temperature.'", "'.$infos->current_state->humidity.'", "'.$infos->current_state->mode.'", "'.$low_target_temp.'", "'.$high_target_temp.'", "'.$infos->target->time_to_target.'","'.$infos->target->humidity.'","'.$infos->current_state->heat.'","'.$infos->current_state->humidifier.'","'.$infos->current_state->ac.'","'.$infos->current_state->fan.'","'.$infos->current_state->battery_level.'","'.$infos->network->online.'")';
+	$result = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 
 	//Set the humidity level if enabled.
 	if ($set_humidity) {
@@ -99,14 +101,15 @@ elseif ($datatype === 'daily') {
 		}
 		
 		//Check to make sure we didn't already record this day.
-		$result = mysql_query("SELECT date FROM energy_reports WHERE date = '".$date."'");
-		if(mysql_num_rows($result) == 0) {
+		$result = $con->query("SELECT date FROM energy_reports WHERE date = '".$day->day."'");
+		if($result->num_rows == 0) {
 			//Insert Current Values into Nest Database Table
-			mysql_query('INSERT INTO energy_reports (date, total_heating_time, heating_degree_days, total_cooling_time, cooling_degree_days, total_fan_time, total_humidifier_time, total_dehumidifier_time, leafs, recent_avg_used, usage_over_avg) VALUES ("'.$day->day.'", "'.$day->total_heating_time.'", "'.$heating_degree_days.'", "'.$day->total_cooling_time.'", "'.$cooling_degree_days.'", "'.$day->total_fan_cooling_time.'", "'.$day->total_humidifier_time.'", "'.$day->total_dehumidifier_time.'", "'.$day->leafs.'", "'.$day->recent_avg_used.'", "'.$day->usage_over_avg.'")');
+			$sql = 'INSERT INTO energy_reports (date, total_heating_time, heating_degree_days, total_cooling_time, cooling_degree_days, total_fan_time, total_humidifier_time, total_dehumidifier_time, leafs, recent_avg_used, usage_over_avg) VALUES ("'.$day->day.'", "'.$day->total_heating_time.'", "'.$heating_degree_days.'", "'.$day->total_cooling_time.'", "'.$cooling_degree_days.'", "'.$day->total_fan_cooling_time.'", "'.$day->total_humidifier_time.'", "'.$day->total_dehumidifier_time.'", "'.$day->leafs.'", "'.$day->recent_avg_used.'", "'.$day->usage_over_avg.'")';
+            $result = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 		}
 	}
 }
 
 //Close mySQL DB connection
-mysql_close($con);
+$con->close();
 
