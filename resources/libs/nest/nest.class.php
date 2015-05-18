@@ -134,7 +134,7 @@ class Nest {
 
             $weather_data = $this->getWeather($structure->postal_code);
             $user_structures[] = (object) array(
-                'name' => $structure->name,
+                'name' => isset($structure->name)?$structure->name:'',
                 'address' => !empty($structure->street_address) ? $structure->street_address : NULL,
                 'city' => $structure->location,
                 'postal_code' => $structure->postal_code,
@@ -457,10 +457,20 @@ class Nest {
 
     /* Helper functions */
 
-    public function getStatus() {
-        $status = $this->doGET("/v3/mobile/" . $this->user);
+    public function getStatus($retry=TRUE) {
+        $url = "/v3/mobile/" . $this->user;
+        $status = $this->doGET($url);
         if (!is_object($status)) {
-            die("Error: Couldn't get status from NEST API: $status\n");
+            throw new RuntimeException("Error: Couldn't get status from NEST API: $status");
+        }
+        if (@$status->cmd == 'REINIT_STATE') {
+            if ($retry) {
+                @unlink($this->cookie_file);
+                @unlink($this->cache_file);
+                $this->login();
+                return $this->getStatus(FALSE);
+            }
+            throw new RuntimeException("Error: HTTP request to $url returned cmd = REINIT_STATE. Retrying failed.");
         }
         $this->last_status = $status;
         $this->saveCache();
@@ -499,7 +509,8 @@ class Nest {
         $this->prepareForGet();
         if ($type == DEVICE_TYPE_PROTECT) {
             $protects = array();
-            foreach ($this->last_status->topaz as $protect) {
+            $topaz = isset($this->last_status->topaz) ? $this->last_status->topaz : array();
+            foreach ($topaz as $protect) {
                 $protects[] = $protect->serial_number;
             }
             return $protects;
@@ -667,10 +678,10 @@ class Nest {
             // Update cacert.pem (valid CA certificates list) from the cURL website once a month
             $curl_cainfo = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cacert.pem';
             $last_month = time()-30*24*60*60;
-            if (!file_exists($curl_cainfo) || filemtime($curl_cainfo) < $last_month) {
+            if (!file_exists($curl_cainfo) || filemtime($curl_cainfo) < $last_month || filesize($curl_cainfo) < 100000) {
                 file_put_contents($curl_cainfo, file_get_contents('http://curl.haxx.se/ca/cacert.pem'));
             }
-            if (file_exists($curl_cainfo)) {
+            if (file_exists($curl_cainfo) && filesize($curl_cainfo) > 100000) {
                 curl_setopt($ch, CURLOPT_CAINFO, $curl_cainfo);
             }
         }
