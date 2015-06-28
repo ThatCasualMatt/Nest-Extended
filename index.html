@@ -59,18 +59,18 @@
 			var tempdata = [
 				{label: "Outside Temp.", color: "#DF7401", data: getSeries(fulldata, "outside_temp")},
 				{label: "Current Temp.", color: "#B40404", data: getSeries(fulldata, "current_temp")},
-				{label: "Target Temp.", color: "#848484", data: getSeries(fulldata, "low_target_temp")},
-				{color: "#848484", data: nullify(getSeries(fulldata, "high_target_temp"))},
-				{label: "Heat On", color: "#FF0000", yaxis: 2, lines: {lineWidth: 0, fill: .30},
-					data: nullify(getSeries(fulldata, "heat_on"))},
-				{label: "AC On", color: "#0000FF", yaxis: 2, lines: {lineWidth: 0, fill: .30},
-					data: nullify(getSeries(fulldata, "ac_on"))},
+				{label: "Heat Target Temp.", color: "#848484", data: getSeries(fulldata, "low_target_temp")},
+				{label: "AC Target Temp.", color: "#848484", data: nullify(getSeries(fulldata, "high_target_temp"))},
 				{label: "Fan On", color: "#FFFF00", yaxis: 2, lines: {lineWidth: 0, fill: .30},
 					data: nullify(getSeries(fulldata, "fan_on"))},
-				{label: "Away Mode", color: "#000000", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+				{label: "Away Mode", color: "#000000", yaxis: 1, lines: {lineWidth: 0, fill: .30},
 					data: nullify(getSeries(fulldata, "away_status"))},
-				{label: "Leaf Earning", color: "#00FF00", yaxis: 2, lines: {lineWidth: 0, fill: .30},
+				{label: "Leaf Earning", color: "#00FF00", yaxis: 1, lines: {lineWidth: 0, fill: .30},
 					data: nullify(getSeries(fulldata, "leaf_status"))},
+				{label: "Heat On", color: "#FF0000", yaxis: 2, lines: {lineWidth: 0, fill: .50},
+					data: nullify(getSeries(fulldata, "heat_on"))},
+				{label: "AC On", color: "#0000FF", yaxis: 2, lines: {lineWidth: 0, fill: .50},
+					data: nullify(getSeries(fulldata, "ac_on"))},
 			];
 
 			var tempoptions = {
