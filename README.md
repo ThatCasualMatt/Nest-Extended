@@ -21,3 +21,5 @@ To install you'll need a webserver running PHP and MySQL. Additionally, you'll n
 4. Create a cron job for nest-get-data.php?datatype=current to run at a regular interval. I use 5 minutes. Others use 10.
 5. Create a cron job for nest-get-data.php?datatype=daily to run once per day. I usually run this at noon.
 6. You're done! Enjoy your new graphs.
+
+![Example Plot](/example.png)
