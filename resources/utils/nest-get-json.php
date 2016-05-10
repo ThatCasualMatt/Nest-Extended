@@ -46,4 +46,5 @@ $query->close();
 //Build the JSON
 header('Content-Type: application/json');
 echo json_encode($data);
+
 $con->close();
