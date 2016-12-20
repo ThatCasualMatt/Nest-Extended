@@ -33,7 +33,12 @@ $data = array();
 $query = $con->query($sql) or trigger_error('SQL: ' . $sql . ' Error: ' . $con->error, E_USER_ERROR);
 while ($r = $query->fetch_assoc()) {
 	foreach ($r as $key => $value) {
-		$data[$key][] = floatval($value); // Append row
+		if (($key == "outside_temp" or $key == "outside_humidity") and (floatval($value) == 0)){
+			$data[$key][] = end($data[$key]); // Append previous row value if current value is zero
+		}
+		else {
+			$data[$key][] = floatval($value); // Append row	
+		}
 	}
 }
 $query->close();
