@@ -39,7 +39,7 @@ define('NESTAPI_ERROR_API_JSON_ERROR', 1003);
 define('NESTAPI_ERROR_API_OTHER_ERROR', 1004);
 
 class Nest {
-    const user_agent = 'Nest/2.1.3 CFNetwork/548.0.4';
+    const user_agent = 'Nest/3.0.1.15 (iOS) os=6.0 platform=iPad3,1';
     const protocol_version = 1;
     const login_url = 'https://home.nest.com/user/login';
     private $days_maps = array('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun');
