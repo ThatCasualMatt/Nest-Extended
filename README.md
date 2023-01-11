@@ -1,6 +1,10 @@
 Nest-Extended
 =============
 
+I AM NO LONGER MAINTAINING THIS REPOSITORY. It was one of the first projects I wrote and published to github on my own and and surprised be the amount of people that ended up using it, messaging me about it, etc. Thank you!
+
+Also, note that since I started this, Nest has started an official Developer program. You might be better served using the official APIs than this project relyin gon the unofficial Nest API.
+
 Introduction
 -------------
 Collect, monitor, and act on extended data from Nest Learning Thermostats.
